@@ -22,7 +22,7 @@ function launch () {
   local MT_USER="${CFG[user]:-Guest}"
   local MT_OPTS=(
     # --info
-    --verbose
+    # --verbose
     )
   local MT_WORLD_NAME=
   if [ -n "$MT_HOST" ]; then
