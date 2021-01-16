@@ -1,0 +1,22 @@
+{ "name": "minetest-util-pmb",
+  "version": "0.0.1",
+  "description": "Some tools for minetest on Ubuntu.",
+  "keywords": [],
+
+  "author": "M.K. (https://github.com/mk-pmb)",
+  "homepage": "https://github.com/mk-pmb/minetest-util-pmb/#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mk-pmb/minetest-util-pmb.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mk-pmb/minetest-util-pmb/issues"
+  },
+  "contributors": [],
+
+  "private": false, "license": "ISC",
+
+
+
+  "npm vs. BOM = Unexpected token": "-*- coding: UTF-8 -*-"
+}
