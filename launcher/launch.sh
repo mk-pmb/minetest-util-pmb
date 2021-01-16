@@ -51,6 +51,7 @@ function launch () {
   exec &> >("$SELFPATH"/denoise_console_output/denoise.sh \
     | stdbuf -i0 -o0 -e0 tee -- "$LOG_FN")
 
+  ( sleep 2s; wmctrl -xFa Minetest.Minetest ) & disown $!
   exec minetest "${MT_OPTS[@]}" || return $?
 }
 
