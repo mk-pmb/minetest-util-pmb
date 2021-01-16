@@ -48,7 +48,7 @@ function launch () {
   mkdir --parents -- "$(dirname -- "$LOG_FN")"
   >>"$LOG_FN" || return $?
   chmod a=,ug+rw -- "$LOG_FN" || return $?
-  exec &> >("$SELFPATH"/denoise_console_output.sh \
+  exec &> >("$SELFPATH"/denoise_console_output/denoise.sh \
     | stdbuf -i0 -o0 -e0 tee -- "$LOG_FN")
 
   exec minetest "${MT_OPTS[@]}" || return $?
