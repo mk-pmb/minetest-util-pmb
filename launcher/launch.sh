@@ -9,6 +9,12 @@ function launch () {
   local SELFNAME="$(basename -- "$SELFFILE" .sh)"
   local INVOKED_AS="$(basename -- "$0" .sh)"
 
+  maybe_homesym .minetest \
+    .config/minetest/userpath \
+    || return $?
+  maybe_homesym .cache/minetest \
+    .config/minetest/cache \
+    || return $?
   # cd -- "$SELFPATH" || return $?
   cd -- "$HOME/.minetest" || return $?
 
@@ -52,8 +58,34 @@ function launch () {
     | stdbuf -i0 -o0 -e0 tee -- "$LOG_FN")
 
   ( sleep 2s; wmctrl -xFa Minetest.Minetest ) & disown $!
-  exec minetest "${MT_OPTS[@]}" || return $?
+  local PROG="$(which {~/.minetest/client/bin/,minetest} \
+    |& grep -Pe '^/' -m 1)"
+  [ -x "$PROG" ] || return $?$(
+    echo "E: unable to find a minetest client executable." >&2)
+  exec "$PROG" "${MT_OPTS[@]}" || return $?
 }
+
+
+function maybe_homesym () {
+  local LINK="$1"; shift
+  [ -d "$HOME/$LINK" ] && return 0
+  local DEST=
+  for DEST in "$@" ''; do
+    [ -n "$DEST" -a -d "$HOME/$DEST" ] && break
+  done
+  [ -z "$DEST" ] || ln --verbose --symbolic --no-target-directory \
+    -- "$HOME/$DEST" "$HOME/$LINK" || return $?$(
+    echo "E: failed to create symlink ~/$LINK -> ~/$DEST" >&2)
+  [ -d "$HOME/$LINK" ] && return 0
+  DEST=" $*"
+  DEST="${DEST// / ~/}"
+  echo "E: not a directory: ~/$LINK, and neither are any of$DEST" >&2
+  return 3
+}
+
+
+
+
 
 
 
