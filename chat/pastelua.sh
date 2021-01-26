@@ -4,12 +4,20 @@
 
 function pastelua () {
   export LANG{,UAGE}=en_US.UTF-8  # make error messages search engine-friendly
-  local LUA_CODE="$(sed -re '/^\s*(-{2}|$)/d' -- "$@")"
-  LUA_CODE="${LUA_CODE//$'\n'/ }"
-  LUA_CODE="${LUA_CODE% }"
+  local LUA_CODE=
+  case "$1" in
+    =* ) LUA_CODE="${1:1} "; shift;;
+  esac
+
+  LUA_CODE+="$(sed -re '/^\s*(-{2}|$)/d' -- "$@" | tr '\n' '\r' | sed -re '
+    s~\s*\r\s*~ ~g
+    s~^ ~~
+    s~ $~~
+    ')"
 
   if [ -n "$LUA_CODE" ]; then
-    echo -n "$LUA_CODE" | clipsave
+    echo -n "$LUA_CODE" | clipsave || return $?
+    echo "D: saved ${#LUA_CODE} characters to clipboard"
   fi
 
   local XDO_KEYS=(
