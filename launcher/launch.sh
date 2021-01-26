@@ -15,6 +15,7 @@ function launch () {
   maybe_homesym .cache/minetest \
     .config/minetest/cache \
     || return $?
+  [ "$*" == --symlinks-only ] && return 0
 
   local -A CFG=()
   local MT_EXTRA_ARGS=()
