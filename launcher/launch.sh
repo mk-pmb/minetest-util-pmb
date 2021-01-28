@@ -17,7 +17,9 @@ function launch () {
     || return $?
   [ "$*" == --symlinks-only ] && return 0
 
-  local -A CFG=()
+  local -A CFG=(
+    [vmemlimit]='100%'
+    )
   local MT_EXTRA_ARGS=()
   parse_cli "$@" || return $?
 
@@ -60,8 +62,12 @@ function launch () {
   [ -x "$MT_PROG" ] || return $?$(
     echo "E: unable to find a minetest client executable." >&2)
 
+  cfg_memlimit || return $?
+
+  local UNBUFFERED='stdbuf -i0 -o0 -e0'
   local MT_CMD=(
-    stdbuf -i0 -o0 -e0
+    nice -n 10
+    $UNBUFFERED
     "$MT_PROG"
     "${MT_OPT[@]}"
     "${MT_EXTRA_ARGS[@]}"
@@ -69,7 +75,7 @@ function launch () {
   echo -n "D: exec:"; printf ' ‹%s›' "${MT_CMD[@]}"; echo
   ( sleep 2s; wmctrl -xFa Minetest.Minetest ) & disown $!
   exec &> >("$SELFPATH"/denoise_console_output/denoise.sh \
-    | stdbuf -i0 -o0 -e0 tee -- "$LOG_FN")
+    | $UNBUFFERED tee -- "$LOG_FN")
   exec "${MT_CMD[@]}" || return $?
 }
 
@@ -108,6 +114,31 @@ function parse_cli () {
   done
   MT_EXTRA_ARGS+=( "$@" )
 }
+
+
+function cfg_memlimit () {
+  local MAX_MEM="${CFG[vmemlimit]}"
+  local TOTAL_RAM="$(
+    grep -m 1 -xPe 'MemTotal:\s+\d+ kB' -- /proc/meminfo | tr -cd 0-9)"
+  [ -n "$TOTAL_RAM" ] || TOTAL_RAM=0
+  case "$MAX_MEM" in
+    unlimited | \
+    '' ) return;;
+    *[kK] ) MAX_MEM="${MAX_MEM%[kK]}";;
+    *[mM] ) MAX_MEM="${MAX_MEM%[mM]} * 1024";;
+    *% ) MAX_MEM="(${MAX_MEM%\%} * $TOTAL_RAM) / 100";;
+  esac
+
+  local MAX_KB=
+  let MAX_KB="$MAX_MEM"
+  [ "${MAX_KB:-0}" -ge 1 ] || return 4$(
+    echo "E: Failed to parse or calculate memory limit" >&2)
+  ulimit -v "$MAX_KB" || return $?
+}
+
+
+
+
 
 
 
