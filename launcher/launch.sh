@@ -50,12 +50,8 @@ function launch () {
     MT_OPT+=( --password-file /dev/fd/17 --go )
   fi
 
-  local LOG_FN=
-  printf -v LOG_FN 'client/logs/%(%y%m%d/%H%M%S)T.%s.%s.log' \
-    -1 $$ "$MT_USER@$MT_HOST"
-  mkdir --parents -- "$(dirname -- "$LOG_FN")"
-  >>"$LOG_FN" || return $?
-  chmod a=,ug+rw -- "$LOG_FN" || return $?
+  local LOG_FN= TRACE_LOG=
+  init_logfiles || return $?
 
   local MT_PROG="$(which {~/.minetest/client/bin/,minetest} \
     |& grep -Pe '^/' -m 1)"
@@ -67,6 +63,7 @@ function launch () {
   local UNBUFFERED='stdbuf -i0 -o0 -e0'
   local MT_CMD=(
     nice -n 10
+    strace-fyxo "$HOME"/.minetest/trace.txt
     $UNBUFFERED
     "$MT_PROG"
     "${MT_OPT[@]}"
@@ -104,6 +101,7 @@ function parse_cli () {
     ARG="$1"; shift
     case "$ARG" in
       -- ) break;;
+      --cfg ) CFG["$1"]="$2"; shift 2;;
       -* ) echo "E: unsupported CLI argument: $ARG" >&2; return 3;;
       *.rc )
         source -- "$ARG" || return $?$(
@@ -134,6 +132,33 @@ function cfg_memlimit () {
   [ "${MAX_KB:-0}" -ge 1 ] || return 4$(
     echo "E: Failed to parse or calculate memory limit" >&2)
   ulimit -v "$MAX_KB" || return $?
+}
+
+
+function init_logfiles ()
+  local LOGS_DIR='client/logs/'
+  local SUB_BFN=
+  printf -v SUB_BFN '%(%y%m%d/%H%M%S)T.%s.%s' -1 $$ "$MT_USER@$MT_HOST"
+  local LINK_BFN="$LOGS_DIR"/latest.
+
+  LOG_FN="$LOGS_DIR/$SUB_BFN.log"
+  init_one_logfile "$LOG_FN" || return $?
+
+  TRACE_LOG="${CFG[tracelog]}"
+  [ "$TRACE_LOG" == + ] && TRACE_LOG="$LOGS_DIR/$SUB_BFN.trc"
+  [ -z "$TRACE_LOG" ] || init_one_logfile "$TRACE_LOG" || return $?
+}
+
+
+function init_one_logfile () {
+  local DEST="$1"; shift
+  FEXT="${DEST##*.}"
+  local LOG_LINK="${LOGS_DIR}latest.$FEXT"
+  [ -L "$LOG_LINK" ] && rm -- "$LOG_LINK"
+  ln --symbolic --no-target-directory -- "$DEST" "$LOG_LINK" || return $?
+  mkdir --parents -- "$(dirname -- "$DEST")"
+  >>"$DEST" || return $?
+  chmod a=,ug+rw -- "$DEST" || return $?
 }
 
 
