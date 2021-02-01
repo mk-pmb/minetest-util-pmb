@@ -3,15 +3,29 @@
 
 function find_duplicate_mods () {
   export LANG{,UAGE}=en_US.UTF-8  # make error messages search engine-friendly
-  local MODS_DIR="${1:-"$HOME"/.minetest/mods}"
-  cd -- "$MODS_DIR/" || return $?
-  local -A MODS_WHERE=()
-  exec < <(find -L [0-9A-Za-z]* -type f -name mod.conf | sort --version-sort)
+  if [ "$#" == 0 ]; then
+    MOD_DIRS=(
+      {"$HOME"/.,/usr/share/}minetest/{mods,client-mods,games}/
+      )
+    "$FUNCNAME" "${MOD_DIRS[@]}"
+    return $?
+  fi
+
+  local MOD_DIRS=()
   local KEY= VAL=
+  for VAL in "$@"; do
+    [ -d "$VAL" ] && MOD_DIRS+=( "$VAL" )
+  done
+
+  local -A MODS_WHERE=()
+  exec < <(find -L "${MOD_DIRS[@]}" \
+    -name '.*' -prune , \
+    -path '*/games/devtest/mods' -prune , \
+    -type f -name mod.conf | sort --version-sort)
   while IFS= read -r VAL; do
     VAL="${VAL%/*}"
-    KEY="${VAL##*/}"
-    VAL="${VAL%/*}"
+    KEY="$(basename -- "$VAL")"
+    VAL="$(dirname -- "$VAL")"
     MODS_WHERE["$KEY"]+="$VAL"$'\n'
   done
   exec < <(printf '%s\n' "${!MODS_WHERE[@]}")
