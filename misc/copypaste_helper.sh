@@ -4,7 +4,7 @@
 
 function copypaste_helper () {
   export LANG{,UAGE}=en_US.UTF-8  # make error messages search engine-friendly
-  cd /
+  [ "$#" -ge 1 ] || cd /
   local XC='xsel --clipboard'
   local PREV= CRNT=
   while sleep 0.1s; do
