@@ -36,9 +36,15 @@ function cph_strip_colors () {
 }
 
 
-function cph_merge_whitespace () {
-  < <(tr -s '\r\n \t' ' ') "$@"; return $?
+function cph_merge_whitespace () { < <(tr -s '\r\n \t' ' ') "$@"; return $?; }
+
+function cph_envtext () { eval "$1"'="$INPUT" "${@:1}"'; return $?; }
+
+function cph_nonfatal () {
+  "$@" || echo "W: failed (rv=$?) to paste into $*" >&2
+  return 0
 }
+
 
 
 
