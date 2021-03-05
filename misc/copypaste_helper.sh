@@ -1,5 +1,29 @@
 #!/bin/bash
 # -*- coding: utf-8, tab-width: 2 -*-
+__DOC__="
+
+When copying text to clipboard in MineTest 5.4.0 on Ubuntu bionic,
+that text is available only for a very short timespan (MT issue 7830).
+This script tries to catch this brief moment of opportunity, get the
+clipped text, and then seize responsibility for maintaining the
+clipboard content.
+
+However, this comes at a heavy price: Each time the clipboard
+responsibility is seized, the MineTest client may freeze for up to
+several seconds. Avoid accidential copying when monsters are nearby.
+
+If you provide command line arguments, they will be interpreted as a
+shell command for notification. The notification command will be run
+each time new text was acquired, and the new text will be sent to the
+notification command's standard input. (Curious? Try with `nl -ba`)
+One use case for this could be text-to-speech.
+
+There might be a slight delay between invocation of the notification
+command, and the text being available for pasting. If your notification
+command wants to use the clipboard in any way, I suggest it delays all
+such action to about 0.2s after invocation.
+
+"
 
 
 function cph_lurk () {
