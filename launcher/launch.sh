@@ -10,6 +10,7 @@ function launch () {
   local UNBUFFERED='stdbuf -i0 -o0 -e0'
 
   local -A CFG=()
+  local DBGLV="${DEBUGLEVEL:-0}"
   local MT_EXTRA_ARGS=()
   local ITEM=
   for ITEM in "$SELFPATH"/src/*.sh; do

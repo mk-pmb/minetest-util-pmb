@@ -9,14 +9,20 @@ function maybe_homesym () {
   for DEST in "$@" ''; do
     [ -n "$DEST" -a -d "$HOME/$DEST" ] && break
   done
-  [ -z "$DEST" ] || ln --verbose --symbolic --no-target-directory \
-    -- "$HOME/$DEST" "$HOME/$LINK" || return $?$(
-    echo "E: failed to create symlink ~/$LINK -> ~/$DEST" >&2)
+  [ -n "$DEST" ] || return 3$(echo "E: not a directory: ~/$LINK," \
+    "and neither are any of$(printf ' ~/%s' "$@")" >&2)
+
+  local UP="${LINK//[^\/]/}"
+  UP="${UP//\//../}"
+  DEST="$UP$DEST"
+  ln --verbose --symbolic --no-target-directory \
+    -- "$DEST" "$HOME/$LINK" || return $?$(
+    echo "E: failed to create symlink ~/$LINK -> $DEST" >&2)
   [ -d "$HOME/$LINK" ] && return 0
-  DEST=" $*"
-  DEST="${DEST// / ~/}"
-  echo "E: not a directory: ~/$LINK, and neither are any of$DEST" >&2
-  return 3
+
+  echo -n "E: symlink was created but seems to not point to a directory: " >&2
+  ls --color=always -dFl -- "$HOME/$LINK"
+  return 4
 }
 
 
