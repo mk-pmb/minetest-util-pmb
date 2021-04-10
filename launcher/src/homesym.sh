@@ -9,8 +9,16 @@ function maybe_homesym () {
   for DEST in "$@" ''; do
     [ -n "$DEST" -a -d "$HOME/$DEST" ] && break
   done
-  [ -n "$DEST" ] || return 3$(echo "E: not a directory: ~/$LINK," \
-    "and neither are any of$(printf ' ~/%s' "$@")" >&2)
+  if [ -z "$DEST" ]; then
+    for DEST in "$LINK" "$@"; do
+      echo -n 'D: '
+      ls --color=always --file-type --directory --format=long \
+        --human-readable -- ~/"$DEST" 2>&1
+    done
+    echo "E: not a directory: ~/$LINK, and neither are any of$(
+      printf ' ~/%s' "$@")" >&2
+    return 3
+  fi
 
   local UP="${LINK//[^\/]/}"
   UP="${UP//\//../}"
