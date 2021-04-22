@@ -11,7 +11,7 @@ function parse_cli () {
       --cfg:* ) CFG["${ARG#*:}"]="$1"; shift;;
       -* ) echo "E: unsupported CLI argument: $ARG" >&2; return 3;;
       *.rc )
-        source -- "$ARG" || return $?$(
+        cli_source_config "$ARG" || return $?$(
           echo "E: failed to source config file '$ARG'" >&2)
         ;;
       * ) echo "E: unsupported CLI argument: $ARG" >&2; return 3;;
@@ -19,5 +19,13 @@ function parse_cli () {
   done
   MT_EXTRA_ARGS+=( "$@" )
 }
+
+
+function cli_source_config () {
+  local CFG_FN="$1"; shift
+  local CFG_DIR="$(readlink -m -- "$CFG_FN"/..)"
+  source -- "$CFG_FN" || return $?
+}
+
 
 return 0
