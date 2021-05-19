@@ -24,7 +24,10 @@ function init_one_logfile () {
   [ -L "$LOG_LINK" ] && rm -- "$LOG_LINK"
   local REL_SUB="${DEST:${#LOGS_DIR}}"
   REL_SUB="${REL_SUB%/}"
+
+  mkdir --parents -- "$(dirname -- "$LOG_LINK")"
   ln --symbolic --no-target-directory -- "$REL_SUB" "$LOG_LINK" || return $?
+
   mkdir --parents -- "$(dirname -- "$DEST")"
   >>"$DEST" || return $?
   chmod a=,ug+rw -- "$DEST" || return $?
