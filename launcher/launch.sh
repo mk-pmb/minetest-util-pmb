@@ -26,6 +26,7 @@ function launch () {
   # files relative to the original cwd
   cd -- "$HOME/.minetest" || return $?
 
+  reghelper_pswd1 || return $?
   local LOG_FN= TRACE_LOG=
   init_logfiles || return $?
   local MT_CMD=()
