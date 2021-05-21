@@ -4,7 +4,8 @@
 
 function decide_minetest_invocation () {
   local MT_HOST="${CFG[host]}"
-  local MT_PORT="${CFG[port]:-30000}"
+  local MT_PORT="${CFG[port]:-30_000}"
+  MT_PORT="${MT_PORT//[,_]/}"
   local MT_USER="${CFG[user]:-Guest}"
   local MT_OPT=(
     # --info

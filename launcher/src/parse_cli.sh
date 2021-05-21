@@ -8,7 +8,16 @@ function parse_cli () {
     case "$ARG" in
       -- ) break;;
       --noisy ) CFG[de-noise]=;;
-      --cfg:* ) CFG["${ARG#*:}"]="$1"; shift;;
+
+      --host | \
+      --port | \
+      --user | \
+      --cfg:* )
+        ARG="${ARG#--}"
+        ARG="${ARG#*:}"
+        CFG["$ARG"]="$1"
+        shift;;
+
       -* ) echo "E: unsupported CLI argument: $ARG" >&2; return 3;;
       *.rc )
         cli_source_config "$ARG" || return $?$(
