@@ -25,6 +25,7 @@ function denoise_main () {
     echo "$ORIG"
     PREV="$MSG"
   done
+  [ "$REPEATS" -ge 2 ] && echo "    ^ × $REPEATS"
 }
 
 
