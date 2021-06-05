@@ -9,6 +9,8 @@ function parse_cli () {
       -- ) break;;
       --noisy ) CFG[de-noise]=;;
 
+      --gamewin-geom ) CFG[task]='gamewin_geom__detect';;
+
       --host | \
       --port | \
       --user | \
@@ -26,7 +28,7 @@ function parse_cli () {
       * ) echo "E: unsupported CLI argument: $ARG" >&2; return 3;;
     esac
   done
-  MT_EXTRA_ARGS+=( "$@" )
+  CLI_EXTRA_ARGS+=( "$@" )
 }
 
 

@@ -13,10 +13,10 @@ function launcher_cli () {
     [task]='launch_game'
     )
   local DBGLV="${DEBUGLEVEL:-0}"
-  local MT_EXTRA_ARGS=()
+  local CLI_EXTRA_ARGS=()
   local ITEM=
   for ITEM in "$SELFPATH"/src/*.sh; do
-    source -- "$ITEM" || return $?
+    source -- "$ITEM" --lib || return $?
   done
   source -- "$SELFPATH"/cfg_default.rc || return $?
 
@@ -24,7 +24,7 @@ function launcher_cli () {
   [ "$*" == --symlinks-only ] && return 0
 
   parse_cli "$@" || return $?
-  "${CFG[task]}" || return $?
+  "${CFG[task]}" "${CLI_EXTRA_ARGS[@]}" || return $?
 }
 
 

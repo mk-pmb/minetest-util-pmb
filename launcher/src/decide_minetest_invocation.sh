@@ -40,7 +40,7 @@ function decide_minetest_invocation () {
     $UNBUFFERED
     "$MT_PROG"
     "${MT_OPT[@]}"
-    "${MT_EXTRA_ARGS[@]}"
+    "${CLI_EXTRA_ARGS[@]}"
     )
 
   echo -n "D: exec:"; printf ' ‹%s›' "${MT_CMD[@]}"; echo
