@@ -43,6 +43,7 @@ function decide_minetest_invocation () {
     "${CLI_EXTRA_ARGS[@]}"
     )
 
+  eval "${CFG[decide_minetest_invocation:refine:final]}" || return $?
   echo -n "D: exec:"; printf ' ‹%s›' "${MT_CMD[@]}"; echo
 }
 
