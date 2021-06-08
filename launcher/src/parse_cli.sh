@@ -10,6 +10,10 @@ function parse_cli () {
       --noisy ) CFG[de-noise]=;;
 
       --gamewin-geom ) CFG[task]='gamewin_geom__detect';;
+      -n | --no-launch ) CFG[task]='true';;
+
+      -Q | --digmode=quick  ) set_mt_ini_opt safe_dig_and_place=false;;
+      -1 | --digmode=one    ) set_mt_ini_opt safe_dig_and_place=true;;
 
       --host | \
       --port | \
@@ -36,6 +40,23 @@ function cli_source_config () {
   local CFG_FN="$1"; shift
   local CFG_DIR="$(readlink -m -- "$CFG_FN"/..)"
   source -- "$CFG_FN" || return $?
+}
+
+
+function set_mt_ini_opt () {
+  local CFG="$HOME"/.minetest/minetest.conf
+  local UPD="$HOME"/.minetest/tmp.upd-$$.minetest.conf
+  local SED= KEY= VAL=
+  for VAL in "$@"; do
+    KEY="${VAL%%=*}"
+    VAL="${VAL#*=}"
+    SED+="/^$KEY *=/d"$'\n'
+  done
+  SED+='s~\s+$~~'
+  VAL="$(sed -rf <(echo "$SED") -- "$CFG")" || return $?
+  VAL+="$(printf '\n%s' "${@/=/ = }")"
+  <<<"$VAL" sort --version-sort >"$UPD" || return $?
+  mv --no-target-directory -- "$UPD" "$CFG" || return $?
 }
 
 
