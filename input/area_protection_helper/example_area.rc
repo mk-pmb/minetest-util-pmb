@@ -1,0 +1,17 @@
+# -*- coding: utf-8, tab-width: 2 -*-
+
+let AREA[remove]='
+  101
+  102
+  '
+
+let AREA[x1]="10"
+let AREA[x2]="${AREA[x1]} + 64"
+
+let AREA[y1]="-64"
+let AREA[y2]="${AREA[y1]} + 128"
+
+let AREA[z1]="10"
+let AREA[z2]="${AREA[x1]} + 64"
+
+AREA[name]='Farm'
