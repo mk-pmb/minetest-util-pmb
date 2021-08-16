@@ -24,6 +24,11 @@ function load_area_config__outer () {
     [ -n "$KEY" ] || continue
     AREA["$KEY"]="$VAL"
   done
+  for KEY in x y z; do
+    [ "${AREA[${KEY}Lo]}" -le "${AREA[${KEY}Hi]}" ] || return 4$(
+      echo "E: Expected ${KEY}Lo <= ${KEY}Hi, but found" \
+        "${AREA[${KEY}Lo]} > ${AREA[${KEY}Hi]}" >&2)
+  done
 }
 
 
@@ -61,8 +66,8 @@ function chat_send_cmd () {
 
 function register_area () {
   [ -n "${AREA[name]}" ] || return 0
-  chat_send_cmd area_pos1 "${AREA[x1]},${AREA[y1]},${AREA[z1]}" || return $?
-  chat_send_cmd area_pos2 "${AREA[x2]},${AREA[y2]},${AREA[z2]}" || return $?
+  chat_send_cmd area_pos1 "${AREA[xLo]},${AREA[yLo]},${AREA[zLo]}" || return $?
+  chat_send_cmd area_pos2 "${AREA[xHi]},${AREA[yHi]},${AREA[zHi]}" || return $?
   chat_send_cmd protect "${AREA[name]}" || return $?
   # Don't spam chat log even more with:
   #     chat_send_cmd area_pos1 0,0,0 || return $?

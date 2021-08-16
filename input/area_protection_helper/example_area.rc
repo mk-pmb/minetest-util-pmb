@@ -1,17 +1,20 @@
 # -*- coding: utf-8, tab-width: 2 -*-
 
-let AREA[remove]='
+AREA[remove]='
   101
   102
   '
 
-let AREA[x1]="10"
-let AREA[x2]="${AREA[x1]} + 64"
+# x = east
+let AREA[xLo]="10"
+let AREA[xHi]="${AREA[xLo]} + 64"
 
-let AREA[y1]="-64"
-let AREA[y2]="${AREA[y1]} + 128"
+# y = up
+let AREA[yLo]="-64"
+let AREA[yHi]="${AREA[yLo]} + 128"
 
-let AREA[z1]="10"
-let AREA[z2]="${AREA[x1]} + 64"
+z = north
+let AREA[zLo]="10"
+let AREA[zHi]="${AREA[xLo]} + 64"
 
-AREA[name]='Farm'
+AREA[name]='My House'
